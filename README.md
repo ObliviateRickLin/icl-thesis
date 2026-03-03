@@ -1,34 +1,34 @@
-# moe-icl: Experiments Mapping (aligned with `main.tex`)
+ï»¿# moe-icl: Experiments Mapping (aligned with `main.tex`)
 
-Õâ·İ README Ö»×öÒ»¼şÊÂ£º°Ñ `main.tex` µÄ **experiments ²¿·Ö**ºÍ´úÂëÒ»Ò»¶ÔÆë¡£
+è¿™ä»½ README åªåšä¸€ä»¶äº‹ï¼šæŠŠ `main.tex` çš„ **experiments éƒ¨åˆ†**å’Œä»£ç ä¸€ä¸€å¯¹é½ã€‚
 
 ## Experiments at a glance
 
-| `main.tex` section | Experiment IDs | What changes | Core metrics | Code entry |
-|---|---|---|---|---|
-| Results I: Architecture Scaling Effects | `S13-S24` | ¼Ü¹¹¿í¶È/Éî¶È/GPT2 preset£¨ÈÎÎñ¹Ì¶¨ NLR, `sigma=0.1`£© | RMSE, SpeedCP width, coverage | [eval_icl_lr2x_ci.py](src/eval_icl_lr2x_ci.py), [eval_icl_lr2x_speedcp.py](src/eval_icl_lr2x_speedcp.py) |
-| Results II: Task Complexity and Signal-to-Noise Effects | `S52-S67` | ÈÎÎñ×å£¨NLR/NQR/2NN/NDT£©ºÍÔëÉù£¨`sigma in {0.1,0.25,0.5,1.0}`£© | RMSE, SpeedCP width, coverage, final-L box/coverage | [eval_icl_curve.py](src/eval_icl_curve.py), [eval_icl_lr2x_speedcp.py](src/eval_icl_lr2x_speedcp.py) |
-| Results III: Input Dimensionality Effects | `S69-S84` | Î¬¶ÈÉ¨Ãè£¨`d in {10,20,40,100}`£© | final-L width/coverage, width distribution | [eval_icl_curve.py](src/eval_icl_curve.py), [eval_icl_lr2x_speedcp.py](src/eval_icl_lr2x_speedcp.py) |
+| `main.tex` section | Experiment IDs | What changes | Core metrics |
+|---|---|---|---|
+| Results I: Architecture Scaling Effects | `S13-S24` | æ¶æ„å®½åº¦/æ·±åº¦/GPT2 presetï¼ˆä»»åŠ¡å›ºå®š NLR, `sigma=0.1`ï¼‰ | RMSE, SpeedCP width, coverage |
+| Results II: Task Complexity and Signal-to-Noise Effects | `S52-S67` | ä»»åŠ¡æ—ï¼ˆNLR/NQR/2NN/NDTï¼‰å’Œå™ªå£°ï¼ˆ`sigma in {0.1,0.25,0.5,1.0}`ï¼‰ | RMSE, SpeedCP width, coverage, final-L box/coverage |
+| Results III: Input Dimensionality Effects | `S69-S84` | ç»´åº¦æ‰«æï¼ˆ`d in {10,20,40,100}`ï¼‰ | final-L width/coverage, width distribution |
 
 ---
 
 ## 1) Experimental Setup (from `main.tex`)
 
-¶ÔÓ¦ `main.tex` µÄ `Experimental Setup` ÈıĞ¡½Ú£º
+å¯¹åº” `main.tex` çš„ `Experimental Setup` ä¸‰å°èŠ‚ï¼š
 
 - Transformer architectures
 - Regression tasks + noise
 - Conformal evaluation protocol
 
-´úÂëÂäµã£º
+ä»£ç è½ç‚¹ï¼š
 
-- ÑµÁ·Ö÷Èë¿Ú: [train.py](src/train.py)
-- ÈÎÎñ¶¨Òå£¨NLR/NQR/2NN/NDT + noise£©: [tasks.py](src/tasks.py)
-- ¿Î³ÌÑ§Ï°£¨Î¬¶È¡¢µãÊı£©: [curriculum.py](src/curriculum.py)
-- Í¨ÓÃÆÀ¹À¾ÛºÏ£¨mean/bootstrap£©: [eval.py](src/eval.py)
-- SpeedCP/CondConfÊµÏÖ: [speedcp_conformal.py](src/uq/speedcp_conformal.py), [conditional_conformal.py](src/uq/conditional_conformal.py)
+- è®­ç»ƒä¸»å…¥å£: [train.py](src/train.py)
+- ä»»åŠ¡å®šä¹‰ï¼ˆNLR/NQR/2NN/NDT + noiseï¼‰: [tasks.py](src/tasks.py)
+- è¯¾ç¨‹å­¦ä¹ ï¼ˆç»´åº¦ã€ç‚¹æ•°ï¼‰: [curriculum.py](src/curriculum.py)
+- é€šç”¨è¯„ä¼°èšåˆï¼ˆmean/bootstrapï¼‰: [eval.py](src/eval.py)
+- SpeedCP/CondConfå®ç°: [speedcp_conformal.py](src/uq/speedcp_conformal.py), [conditional_conformal.py](src/uq/conditional_conformal.py)
 
-ÅäÖÃÈë¿Ú£¨È«²¿ÊµÑéÅäÖÃÄ¿Â¼£©£º
+é…ç½®å…¥å£ï¼ˆå…¨éƒ¨å®éªŒé…ç½®ç›®å½•ï¼‰ï¼š
 
 - [src/conf/gpt/](src/conf/gpt)
 
@@ -36,7 +36,7 @@
 
 ## 2) Results I: Architecture Scaling Effects (`S13-S24`)
 
-Õâ²¿·Ö¹Ì¶¨ÈÎÎñÎª noisy linear regression (`sigma=0.1`)£¬±È½Ï¼Ü¹¹ÄÜÁ¦¡£
+è¿™éƒ¨åˆ†å›ºå®šä»»åŠ¡ä¸º noisy linear regression (`sigma=0.1`)ï¼Œæ¯”è¾ƒæ¶æ„èƒ½åŠ›ã€‚
 
 ### Involved experiments
 
@@ -44,7 +44,7 @@
 - Depth scaling: `S17-S20`
 - GPT-2 presets: `S21-S24`
 
-ÅäÖÃÎÄ¼ş£¨Ö±½Óµã¿ª£©£º
+é…ç½®æ–‡ä»¶ï¼ˆç›´æ¥ç‚¹å¼€ï¼‰ï¼š
 
 - [S13_gpt2_w32_d6_nlr80x40.yaml](src/conf/gpt/S13_gpt2_w32_d6_nlr80x40.yaml)
 - [S14_gpt2_w64_d6_nlr80x40.yaml](src/conf/gpt/S14_gpt2_w64_d6_nlr80x40.yaml)
@@ -59,16 +59,16 @@
 - [S23_gpt2_medium_nlr80x40.yaml](src/conf/gpt/S23_gpt2_medium_nlr80x40.yaml)
 - [S24_gpt2_large_nlr80x40.yaml](src/conf/gpt/S24_gpt2_large_nlr80x40.yaml)
 
-ÆÀ¹À½Å±¾£º
+è¯„ä¼°è„šæœ¬ï¼š
 
-- RMSE/Îó²îÇúÏß£º [eval_icl_lr2x_ci.py](src/eval_icl_lr2x_ci.py)£¨family: `s_nlr80_series`£©
-- SpeedCP¿í¶ÈÓë¸²¸ÇÂÊ£º [eval_icl_lr2x_speedcp.py](src/eval_icl_lr2x_speedcp.py)
+- RMSE/è¯¯å·®æ›²çº¿ï¼š [eval_icl_lr2x_ci.py](src/eval_icl_lr2x_ci.py)ï¼ˆfamily: `s_nlr80_series`ï¼‰
+- SpeedCPå®½åº¦ä¸è¦†ç›–ç‡ï¼š [eval_icl_lr2x_speedcp.py](src/eval_icl_lr2x_speedcp.py)
 
 ---
 
 ## 3) Results II: Task Complexity and Signal-to-Noise Effects (`S52-S67`)
 
-Õâ²¿·Ö¹Ì¶¨¼Ü¹¹£¨`w256 d12`£©£¬É¨ÈÎÎñºÍÔëÉù¡£
+è¿™éƒ¨åˆ†å›ºå®šæ¶æ„ï¼ˆ`w256 d12`ï¼‰ï¼Œæ‰«ä»»åŠ¡å’Œå™ªå£°ã€‚
 
 ### Involved experiments
 
@@ -77,24 +77,24 @@
 - 2NN: `S60-S63`
 - NDT: `S64-S67`
 
-ÅäÖÃÎÄ¼ş£¨Ã¿×å¸øÒ»¸öÈë¿Ú£©£º
+é…ç½®æ–‡ä»¶ï¼ˆæ¯æ—ç»™ä¸€ä¸ªå…¥å£ï¼‰ï¼š
 
 - [S52_gpt2_w256_d12_nlr80x40_noise01.yaml](src/conf/gpt/S52_gpt2_w256_d12_nlr80x40_noise01.yaml)
 - [S56_gpt2_w256_d12_nqr200x40_noise01.yaml](src/conf/gpt/S56_gpt2_w256_d12_nqr200x40_noise01.yaml)
 - [S60_gpt2_w256_d12_n2nn200x40_noise01.yaml](src/conf/gpt/S60_gpt2_w256_d12_n2nn200x40_noise01.yaml)
 - [S64_gpt2_w256_d12_ndt200x40_noise01.yaml](src/conf/gpt/S64_gpt2_w256_d12_ndt200x40_noise01.yaml)
-- ÆäÓàÔëÉù¼¶±ğÍ¬ÃûÇ°×º£º`noise025 / noise05 / noise10`£¨Î»ÓÚ [src/conf/gpt/](src/conf/gpt)£©
+- å…¶ä½™å™ªå£°çº§åˆ«åŒåå‰ç¼€ï¼š`noise025 / noise05 / noise10`ï¼ˆä½äº [src/conf/gpt/](src/conf/gpt)ï¼‰
 
-ÆÀ¹À½Å±¾£º
+è¯„ä¼°è„šæœ¬ï¼š
 
-- RMSE/Îó²îÇ÷ÊÆ£º [eval_icl_curve.py](src/eval_icl_curve.py)
-- SpeedCP width/coverage£º [eval_icl_lr2x_speedcp.py](src/eval_icl_lr2x_speedcp.py)
-- ¶îÍâ mixed-noise ÆÀ¹À¹¤¾ß£º [eval_icl_mix_noise2.py](src/eval_icl_mix_noise2.py), [eval_icl_mix_noise2_ci.py](src/eval_icl_mix_noise2_ci.py), [eval_icl_mix_noise2_conformal.py](src/eval_icl_mix_noise2_conformal.py)
+- RMSE/è¯¯å·®è¶‹åŠ¿ï¼š [eval_icl_curve.py](src/eval_icl_curve.py)
+- SpeedCP width/coverageï¼š [eval_icl_lr2x_speedcp.py](src/eval_icl_lr2x_speedcp.py)
+- é¢å¤– mixed-noise è¯„ä¼°å·¥å…·ï¼š [eval_icl_mix_noise2.py](src/eval_icl_mix_noise2.py), [eval_icl_mix_noise2_ci.py](src/eval_icl_mix_noise2_ci.py), [eval_icl_mix_noise2_conformal.py](src/eval_icl_mix_noise2_conformal.py)
 
-SNR/ÔëÉùÔÚ´úÂëÖĞµÄÎ»ÖÃ£º
+SNR/å™ªå£°åœ¨ä»£ç ä¸­çš„ä½ç½®ï¼š
 
-- ÔëÉù²ÎÊı£º`training.tasks[*].kwargs.noise_std`£¨¼ûÉÏÃæ¸÷ `S52-S67` ÅäÖÃ£©
-- ÔëÉù×¢ÈëÊµÏÖ£º [tasks.py](src/tasks.py)
+- å™ªå£°å‚æ•°ï¼š`training.tasks[*].kwargs.noise_std`ï¼ˆè§ä¸Šé¢å„ `S52-S67` é…ç½®ï¼‰
+- å™ªå£°æ³¨å…¥å®ç°ï¼š [tasks.py](src/tasks.py)
   - `NoisyLinearRegression`
   - `NoisyQuadraticRegression`
   - `NoisyRelu2nnRegression`
@@ -104,7 +104,7 @@ SNR/ÔëÉùÔÚ´úÂëÖĞµÄÎ»ÖÃ£º
 
 ## 4) Results III: Input Dimensionality Effects (`S69-S84`)
 
-Õâ²¿·Ö¿´²»Í¬ÊäÈëÎ¬¶ÈÏÂµÄ¿í¶È/¸²¸ÇÂÊ±ä»¯¡£
+è¿™éƒ¨åˆ†çœ‹ä¸åŒè¾“å…¥ç»´åº¦ä¸‹çš„å®½åº¦/è¦†ç›–ç‡å˜åŒ–ã€‚
 
 ### Involved experiments
 
@@ -113,44 +113,44 @@ SNR/ÔëÉùÔÚ´úÂëÖĞµÄÎ»ÖÃ£º
 - 2NN dims: `S71`, `S79-S81`
 - NDT dims: `S72`, `S82-S84`
 
-ÅäÖÃÎÄ¼ş£¨´ú±íÏî£©£º
+é…ç½®æ–‡ä»¶ï¼ˆä»£è¡¨é¡¹ï¼‰ï¼š
 
 - [S69_gpt2_w512_d12_nlr201x100.yaml](src/conf/gpt/S69_gpt2_w512_d12_nlr201x100.yaml)
 - [S70_gpt2_w512_d12_nqr501x100.yaml](src/conf/gpt/S70_gpt2_w512_d12_nqr501x100.yaml)
 - [S71_gpt2_w512_d12_n2nn501x100.yaml](src/conf/gpt/S71_gpt2_w512_d12_n2nn501x100.yaml)
 - [S72_gpt2_w512_d12_ndt501x100.yaml](src/conf/gpt/S72_gpt2_w512_d12_ndt501x100.yaml)
-- ÆäÓàÍ¬×éÎ¬¶ÈÅäÖÃ£º [src/conf/gpt/](src/conf/gpt)
+- å…¶ä½™åŒç»„ç»´åº¦é…ç½®ï¼š [src/conf/gpt/](src/conf/gpt)
 
-ÆÀ¹À½Å±¾£º
+è¯„ä¼°è„šæœ¬ï¼š
 
-- RMSE/Îó²îÇúÏß£º [eval_icl_curve.py](src/eval_icl_curve.py)
-- final-L coverage/width£¨SpeedCP£©£º [eval_icl_lr2x_speedcp.py](src/eval_icl_lr2x_speedcp.py)
+- RMSE/è¯¯å·®æ›²çº¿ï¼š [eval_icl_curve.py](src/eval_icl_curve.py)
+- final-L coverage/widthï¼ˆSpeedCPï¼‰ï¼š [eval_icl_lr2x_speedcp.py](src/eval_icl_lr2x_speedcp.py)
 
 ---
 
 ## 5) Commands you actually run
 
-ÑµÁ·£¨ÈÎÒâÊµÑéÅäÖÃ£©£º
+è®­ç»ƒï¼ˆä»»æ„å®éªŒé…ç½®ï¼‰ï¼š
 
 ```bash
 python src/train.py --config src/conf/gpt/<YOUR_EXPERIMENT>.yaml
 ```
 
-Results I£¨S13-S24£©Ê¾Àı£º
+Results Iï¼ˆS13-S24ï¼‰ç¤ºä¾‹ï¼š
 
 ```bash
 python src/eval_icl_lr2x_ci.py --results-dir ../results --family s_nlr80_series
 python src/eval_icl_lr2x_speedcp.py --results-dir ../results --family s_nlr80_series
 ```
 
-Results II£¨S52-S67£©Ê¾Àı£º
+Results IIï¼ˆS52-S67ï¼‰ç¤ºä¾‹ï¼š
 
 ```bash
 python src/eval_icl_curve.py --results-dir ../results --exps S52_gpt2_w256_d12_nlr80x40_noise01
 python src/eval_icl_lr2x_speedcp.py --run-dir ../results/S52_gpt2_w256_d12_nlr80x40_noise01/<run_uuid>
 ```
 
-Results III£¨S69-S84£©Ê¾Àı£º
+Results IIIï¼ˆS69-S84ï¼‰ç¤ºä¾‹ï¼š
 
 ```bash
 python src/eval_icl_curve.py --results-dir ../results --exps S69_gpt2_w512_d12_nlr201x100
@@ -159,15 +159,95 @@ python src/eval_icl_lr2x_speedcp.py --run-dir ../results/S69_gpt2_w512_d12_nlr20
 
 ---
 
-## 6) Important note
+## 6) Why SNR is consistent in Experiment III
 
-µ±Ç°ÈôÈ±ÉÙ `src/ckpt_utils.py`£¬²¿·ÖÆÀ¹À½Å±¾»áÖ±½Ó±¨´í£¨`ModuleNotFoundError: ckpt_utils`£©¡£
-ÊÜÓ°Ïì½Å±¾°üÀ¨£º
+åœ¨ç°åœ¨åšçš„è¿™å¥— **4x4ï¼ˆ4 ç§ä»»åŠ¡ x 4 ä¸ª max-dimï¼‰** é‡Œï¼Œå¦‚æœæˆ‘ä»¬æŠŠ SNR ç†è§£ä¸º
 
-- [eval_icl_lr2x_ci.py](src/eval_icl_lr2x_ci.py)
-- [eval_icl_lr2x_condconf.py](src/eval_icl_lr2x_condconf.py)
-- [eval_icl_lr2x_conformal.py](src/eval_icl_lr2x_conformal.py)
-- [eval_icl_lr2x_speedcp.py](src/eval_icl_lr2x_speedcp.py)
-- [eval_icl_mix_noise2.py](src/eval_icl_mix_noise2.py)
-- [eval_icl_mix_noise2_ci.py](src/eval_icl_mix_noise2_ci.py)
-- [eval_icl_mix_noise2_conformal.py](src/eval_icl_mix_noise2_conformal.py)
+$$
+\text{SNR} := \frac{\operatorname{Var}(y_{\text{clean}})}{\operatorname{Var}(\epsilon)}
+= \frac{\operatorname{Var}(y_{\text{clean}})}{\sigma^2},
+\quad \epsilon \sim \mathcal N(0,\sigma^2)
+$$
+
+é‚£ä¹ˆç»“è®ºæ˜¯ï¼š
+
+- **åœ¨åŒä¸€ç§å®éªŒç§ç±»ï¼ˆåŒä¸€ä¸ª taskï¼‰ä¸‹ï¼Œå½“å‰ SNR æ˜¯å¸¸æ•°ï¼ˆä¸éš dim / L å˜åŒ–ï¼‰**
+- **å¹¶ä¸”å¯ä»¥ç›´æ¥ç®—å‡ºæ¥ï¼ˆä¸»è¦ç”± `noise_std` å†³å®šï¼‰**
+
+åŸå› æ˜¯ï¼š`xs` ç”±é«˜æ–¯é‡‡æ ·ï¼ˆ`torch.randn(...)`ï¼‰ï¼Œå¹¶ä¸”è¿™å››ç±»ä»»åŠ¡çš„ç”Ÿæˆéƒ½è¢«æ˜¾å¼åšäº†â€œæ–¹å·®å½’ä¸€åŒ–â€åˆ° O(1) é‡çº§ã€‚
+
+### 1) `noisy_linear_regression`ï¼ˆ`S69/S73/S74/S75`ï¼‰
+
+- é…ç½®é‡Œ `noise_std=0.1` ä¸” `normalize_w=True`ï¼ˆä¾‹å¦‚ [S69_gpt2_w512_d12_nlr201x100.yaml](src/conf/gpt/S69_gpt2_w512_d12_nlr201x100.yaml)ï¼‰
+- çº¿æ€§å›å½’åœ¨ `normalize_w=True` æ—¶ä½¿ç”¨ `scale / sqrt(n_dims)` ç¼©æ”¾ï¼ˆè§ [tasks.py](src/tasks.py)ï¼‰
+- ç„¶ååŠ å™ªå£° `+ N(0, noise_std^2)`
+
+åœ¨ `xs ~ N(0,1), w ~ N(0,1), scale=1` ä¸‹ï¼š
+
+- $\operatorname{Var}(y_{\text{clean}}) \approx 1$
+- $\operatorname{Var}(\epsilon) = \sigma^2$
+
+æ‰€ä»¥ï¼š
+
+$$
+\text{SNR} \approx \frac{1}{\sigma^2}
+$$
+
+å½“å‰è¿™ç»„ `sigma=0.1`ï¼Œå³ **SNR çº¦ä¸º 100ï¼ˆçº¦ 20 dBï¼‰**ã€‚
+
+### 2) `noisy_quadratic_regression`ï¼ˆ`S70/S76/S77/S78`ï¼‰
+
+- é…ç½®åŒæ · `normalize_w=True`ã€`noise_std=0.1`ï¼ˆä¾‹å¦‚ [S70_gpt2_w512_d12_nqr501x100.yaml](src/conf/gpt/S70_gpt2_w512_d12_nqr501x100.yaml)ï¼‰
+- äºŒæ¬¡å›å½’å†…éƒ¨æœ‰ `1/sqrt(3)` çš„å¯¹é½ç¼©æ”¾ï¼Œå¹¶åœ¨ `normalize_w=True` æ—¶å†é™¤ä»¥ `sqrt(n_dims)`ï¼ˆè§ [tasks.py](src/tasks.py)ï¼‰
+- æœ€ååŠ å™ªå£°ï¼ˆåŒ noisy ä½“ç³»ï¼‰
+
+è¿™å¥—ç¼©æ”¾è®© $\operatorname{Var}(y_{\text{clean}}) \approx 1$ï¼Œå› æ­¤åŒæ ·æœ‰ï¼š
+
+$$
+\text{SNR} \approx \frac{1}{\sigma^2}
+$$
+
+`sigma=0.1` æ—¶ä»çº¦ä¸º **100**ã€‚
+
+### 3) `noisy_relu_2nn_regression`ï¼ˆ`S71/S79/S80/S81`ï¼‰
+
+- é…ç½®é‡Œ `hidden_layer_size=4`ã€`normalize_w=True`ã€`noise_std=0.1`ï¼ˆä¾‹å¦‚ [S71_gpt2_w512_d12_n2nn501x100.yaml](src/conf/gpt/S71_gpt2_w512_d12_n2nn501x100.yaml)ï¼‰
+- 2NN å®ç°ä¼šåœ¨ `normalize_w=True` æ—¶åš `xs / sqrt(n_dims)`ï¼Œè¾“å‡ºå†ä¹˜ `sqrt(2/hidden_layer_size)` ç¨³å®šæ–¹å·®ï¼ˆè§ [tasks.py](src/tasks.py)ï¼‰
+- æœ€ååŠ  `noise_std` é«˜æ–¯å™ªå£°
+
+å› æ­¤è¯¥ä»»åŠ¡ä¹Ÿè¢«è®¾è®¡ä¸º $\operatorname{Var}(y_{\text{clean}})$ è¿‘ä¼¼å¸¸æ•°ï¼ˆçº¦ 1ï¼‰ï¼š
+
+$$
+\text{SNR} \approx \frac{1}{\sigma^2}
+$$
+
+`sigma=0.1` æ—¶çº¦ä¸º **100**ã€‚
+
+### 4) `noisy_decision_tree`ï¼ˆ`S72/S82/S83/S84`ï¼‰
+
+- é…ç½®é‡Œ `depth=4`ã€`noise_std=0.1`ï¼ˆä¾‹å¦‚ [S72_gpt2_w512_d12_ndt501x100.yaml](src/conf/gpt/S72_gpt2_w512_d12_ndt501x100.yaml)ï¼‰
+- å†³ç­–æ ‘ç›®æ ‡å€¼ `target_tensor` æ¥è‡ª `torch.randn(...)`ï¼ˆæ–¹å·®è¿‘ä¼¼ 1ï¼Œè§ [tasks.py](src/tasks.py)ï¼‰
+- ç„¶ååŠ å™ªå£° `+ N(0, noise_std^2)`
+
+æ‰€ä»¥ä¹Ÿæœ‰ï¼š
+
+$$
+\text{SNR} \approx \frac{1}{\sigma^2}
+$$
+
+`sigma=0.1` æ—¶çº¦ä¸º **100**ã€‚
+
+### ä»€ä¹ˆæ—¶å€™ SNR ä¸æ˜¯å¸¸æ•°
+
+ä¸»è¦ä¸¤ç§å¼€å…³ä¼šæ‰“ç ´â€œè·¨ dim çš„å¸¸æ•° SNRâ€ï¼š
+
+1. å…³é—­ `normalize_w`ï¼šçº¿æ€§/äºŒæ¬¡/2NN çš„ä¿¡å·æ–¹å·®ä¼šéšç»´åº¦å¢é•¿ï¼ˆä¸å†é™¤ä»¥ $\sqrt{d}$ï¼‰
+2. æ‰“å¼€ `renormalize_ys`ï¼šä¼šå¯¹ `ys_b_noisy` åšæŒ‰ std çš„é‡æ ‡å®šï¼Œä½¿è¾“å‡ºå°ºåº¦æ˜¾å¼å¸¦ä¸Šç»´åº¦ä¾èµ–
+
+### ç»“è®ºï¼ˆå½“å‰ 4x4ï¼‰
+
+å¯¹æ¯ä¸€ç§ taskï¼ˆNLR / NQR / 2NN / NDTï¼‰ï¼Œå½“å‰é…ç½®éƒ½æŠŠ **ä¿¡å·æ–¹å·®ç¨³å®šåœ¨çº¦ 1**ï¼ŒåŒæ—¶å™ªå£°æ–¹å·®æ˜¯ $\sigma^2$ï¼ˆè¿™å¥—å®éªŒåŸºæœ¬æ˜¯ `sigma=0.1`ï¼‰ï¼Œæ‰€ä»¥ï¼š
+
+- **SNR æ˜¯å¸¸æ•°**
+- **å¯è¿‘ä¼¼ä¸ºï¼š`SNR ~= 1 / noise_std^2`**
+- ç°åœ¨ `noise_std=0.1`ï¼Œå³ **SNR çº¦ä¸º 100ï¼ˆçº¦ 20 dBï¼‰**
