@@ -164,9 +164,9 @@ python src/eval_icl_lr2x_speedcp.py --run-dir ../results/S69_gpt2_w512_d12_nlr20
 在现在做的这套 **4x4（4 种任务 x 4 个 max-dim）** 里，如果我们把 SNR 理解为
 
 $$
-\text{SNR} := \frac{\operatorname{Var}(y_{\text{clean}})}{\operatorname{Var}(\epsilon)}
-= \frac{\operatorname{Var}(y_{\text{clean}})}{\sigma^2},
-\quad \epsilon \sim \mathcal N(0,\sigma^2)
+\text{SNR} := \frac{Var(y_{clean})}{Var(\\epsilon)}
+= \frac{Var(y_{clean})}{\sigma^2},
+\quad \epsilon \sim N(0,\sigma^2)
 $$
 
 那么结论是：
@@ -184,8 +184,8 @@ $$
 
 在 `xs ~ N(0,1), w ~ N(0,1), scale=1` 下：
 
-- $\operatorname{Var}(y_{\text{clean}}) \approx 1$
-- $\operatorname{Var}(\epsilon) = \sigma^2$
+- $Var(y_{clean}) \approx 1$
+- $Var(\\epsilon) = \sigma^2$
 
 所以：
 
@@ -201,7 +201,7 @@ $$
 - 二次回归内部有 `1/sqrt(3)` 的对齐缩放，并在 `normalize_w=True` 时再除以 `sqrt(n_dims)`（见 [tasks.py](src/tasks.py)）
 - 最后加噪声（同 noisy 体系）
 
-这套缩放让 $\operatorname{Var}(y_{\text{clean}}) \approx 1$，因此同样有：
+这套缩放让 $Var(y_{clean}) \approx 1$，因此同样有：
 
 $$
 \text{SNR} \approx \frac{1}{\sigma^2}
@@ -215,7 +215,7 @@ $$
 - 2NN 实现会在 `normalize_w=True` 时做 `xs / sqrt(n_dims)`，输出再乘 `sqrt(2/hidden_layer_size)` 稳定方差（见 [tasks.py](src/tasks.py)）
 - 最后加 `noise_std` 高斯噪声
 
-因此该任务也被设计为 $\operatorname{Var}(y_{\text{clean}})$ 近似常数（约 1）：
+因此该任务也被设计为 $Var(y_{clean})$ 近似常数（约 1）：
 
 $$
 \text{SNR} \approx \frac{1}{\sigma^2}
@@ -251,3 +251,4 @@ $$
 - **SNR 是常数**
 - **可近似为：`SNR ~= 1 / noise_std^2`**
 - 现在 `noise_std=0.1`，即 **SNR 约为 100（约 20 dB）**
+
