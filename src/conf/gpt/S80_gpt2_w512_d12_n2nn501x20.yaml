@@ -34,7 +34,6 @@ model:
   mlp_bias: False
   qkv_bias: False
   use_rope: False
-  noise_scale: 1.0
 out_dir: ../results/S80_gpt2_w512_d12_n2nn501x20
 wandb:
   project: moe-icl
