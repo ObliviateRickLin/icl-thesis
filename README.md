@@ -1,6 +1,6 @@
-﻿# moe-icl: Experiments Mapping (aligned with `main.tex`)
+﻿# Experiments Mapping
 
-这份 README 只做一件事：把 `main.tex` 的 **experiments 部分**和代码一一对齐。
+下面的内容为代码导读，将具体的代码片段和原文的实验设置一一对应。
 
 ## Experiments at a glance
 
@@ -161,7 +161,9 @@ python src/eval_icl_lr2x_speedcp.py --run-dir ../results/S69_gpt2_w512_d12_nlr20
 
 ## 6) Why SNR is consistent in Experiment III
 
-在现在做的这套 **4x4（4 种任务 x 4 个 max-dim）** 里，如果我们把 SNR 理解为
+目前因为已经对y的尺度随着维度做了normalization, 所以不同的维度的SNR已经保持一致，都是100，具体解释如下。
+
+在现在做的这套 **4x4（4 种任务 x 4 个 max-dim）** 里，SNR我们做如下定义
 
 $$
 \text{SNR} := \frac{Var(y_{clean})}{Var(\\epsilon)}
