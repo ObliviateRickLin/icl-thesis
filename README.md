@@ -1,202 +1,173 @@
-# moe-icl (src-only)
+# moe-icl: Experiments Mapping (aligned with `main.tex`)
 
-这份 README 按 `main.tex` 的实验结构来写，目标是回答两件事：
-1. 每一部分实验到底看哪些代码。
-2. SNR 在这个仓库里具体是什么意思、由哪个参数控制、怎么读结果。
+这份 README 只做一件事：把 `main.tex` 的 **experiments 部分**和代码一一对齐。
 
-## 1. 当前仓库范围
+## Experiments at a glance
 
-当前分支只保留了 `src/` 主代码和 `src/conf/gpt/` 配置，`scaling_report/` 已删除。
-
-核心目录：
-
-- `src/train.py`: 训练入口（Quinine 配置驱动）
-- `src/models.py`, `src/base_models.py`, `src/moe.py`: 模型定义（GPT / MoE）
-- `src/tasks.py`: 任务定义（线性、二次、2NN、决策树 + noisy 版本）
-- `src/samplers.py`: 输入采样（高斯）
-- `src/curriculum.py`: 维度与上下文长度课程学习
-- `src/eval.py`: 通用评估（mean/std/bootstrap）
-- `src/uq/conditional_conformal.py`: CondConf 封装
-- `src/uq/speedcp_conformal.py`: SpeedCP 封装
-- `src/conf/gpt/*.yaml`: S01-S84、E 系列配置
-
-## 2. main.tex 章节 -> 代码对照总表
-
-| main.tex 实验部分 | 配置文件 | 训练代码 | 评估代码（RMSE/误差） | 评估代码（覆盖率/区间宽度） |
+| `main.tex` section | Experiment IDs | What changes | Core metrics | Code entry |
 |---|---|---|---|---|
-| Experiment One: Dense Transformer Scaling (S01-S12) | `src/conf/gpt/S01_...yaml` 到 `S12_...yaml` | `src/train.py` | `src/eval_icl_curve.py`, `src/eval_icl_lr2x_ci.py` | `src/eval_icl_lr2x_conformal.py`, `src/eval_icl_lr2x_condconf.py`, `src/eval_icl_lr2x_speedcp.py` |
-| Experiment Two: UQ with CondConf + s_proj | 同上（通常基于 S01-S12 结果） | 无新增训练 | 误差仍用上面 RMSE 脚本 | 重点看 `eval_icl_lr2x_condconf.py`（`--x-features s_proj`）与 `eval_icl_lr2x_conformal.py` |
-| Architecture Scaling (S13-S24, noisy linear) | `src/conf/gpt/S13_...yaml` 到 `S24_...yaml` | `src/train.py` | `src/eval_icl_lr2x_ci.py`（family=`s_nlr80_series`）或 `src/eval_icl_curve.py` | `src/eval_icl_lr2x_speedcp.py` / `src/eval_icl_lr2x_condconf.py` |
-| Noise / SNR 系列（S25-S39、S52-S67） | `src/conf/gpt/S25_...` 到 `S67_...` | `src/train.py` | `src/eval_icl_mix_noise2.py`, `src/eval_icl_mix_noise2_ci.py`, `src/eval_icl_curve.py` | `src/eval_icl_mix_noise2_conformal.py`, `src/eval_icl_lr2x_speedcp.py` |
-| Dimension 扫描（S69-S84） | `src/conf/gpt/S69_...` 到 `S84_...` | `src/train.py` | `src/eval_icl_curve.py`（按 exp 列表跑） | `src/eval_icl_lr2x_speedcp.py`（通常按 run-dir 单独评估） |
+| Results I: Architecture Scaling Effects | `S13-S24` | 架构宽度/深度/GPT2 preset（任务固定 NLR, `sigma=0.1`） | RMSE, SpeedCP width, coverage | [eval_icl_lr2x_ci.py](src/eval_icl_lr2x_ci.py), [eval_icl_lr2x_speedcp.py](src/eval_icl_lr2x_speedcp.py) |
+| Results II: Task Complexity and Signal-to-Noise Effects | `S52-S67` | 任务族（NLR/NQR/2NN/NDT）和噪声（`sigma in {0.1,0.25,0.5,1.0}`） | RMSE, SpeedCP width, coverage, final-L box/coverage | [eval_icl_curve.py](src/eval_icl_curve.py), [eval_icl_lr2x_speedcp.py](src/eval_icl_lr2x_speedcp.py) |
+| Results III: Input Dimensionality Effects | `S69-S84` | 维度扫描（`d in {10,20,40,100}`） | final-L width/coverage, width distribution | [eval_icl_curve.py](src/eval_icl_curve.py), [eval_icl_lr2x_speedcp.py](src/eval_icl_lr2x_speedcp.py) |
 
-## 3. 分实验详细说明
+---
 
-### 3.1 Experiment One（S01-S12）
+## 1) Experimental Setup (from `main.tex`)
 
-你要看的最小代码集合：
+对应 `main.tex` 的 `Experimental Setup` 三小节：
 
-- 配置：`src/conf/gpt/S01_gpt2_w32_d6_lr.yaml` 到 `src/conf/gpt/S12_gpt2_large_lr.yaml`
-- 任务定义：`src/tasks.py` 里的 `LinearRegression`
-- 训练：`src/train.py`
-- ICL 曲线/CI：`src/eval_icl_lr2x_ci.py`（含 `s_series`）
-- 通用曲线：`src/eval_icl_curve.py`
+- Transformer architectures
+- Regression tasks + noise
+- Conformal evaluation protocol
 
-建议先读顺序：
+代码落点：
 
-1. `S01/S12` 配置（看 `model`、`training.tasks`、`curriculum`）
-2. `tasks.py::LinearRegression.evaluate`
-3. `train.py`（`train_step` + `Curriculum` 的使用）
-4. `eval_icl_lr2x_ci.py`（怎么从 per-position 指标得到 ICL length 曲线）
+- 训练主入口: [train.py](src/train.py)
+- 任务定义（NLR/NQR/2NN/NDT + noise）: [tasks.py](src/tasks.py)
+- 课程学习（维度、点数）: [curriculum.py](src/curriculum.py)
+- 通用评估聚合（mean/bootstrap）: [eval.py](src/eval.py)
+- SpeedCP/CondConf实现: [speedcp_conformal.py](src/uq/speedcp_conformal.py), [conditional_conformal.py](src/uq/conditional_conformal.py)
 
-### 3.2 Experiment Two（Split CP vs CondConf + s_proj）
+配置入口（全部实验配置目录）：
 
-你要看的最小代码集合：
+- [src/conf/gpt/](src/conf/gpt)
 
-- Split conformal 基线：`src/eval_icl_lr2x_conformal.py`
-- CondConf 主脚本：`src/eval_icl_lr2x_condconf.py`
-- CondConf 封装：`src/uq/conditional_conformal.py`
-- SpeedCP 版本：`src/eval_icl_lr2x_speedcp.py` + `src/uq/speedcp_conformal.py`
+---
 
-`s_proj` 的实现位置：
+## 2) Results I: Architecture Scaling Effects (`S13-S24`)
 
-- `src/eval_icl_lr2x_condconf.py` 中 `_s_proj(...)`
-- `src/eval_icl_lr2x_speedcp.py` 中 `_s_proj(...)`
+这部分固定任务为 noisy linear regression (`sigma=0.1`)，比较架构能力。
 
-对应 main.tex 的重点参数：
+### Involved experiments
 
-- `--x-features s_proj`
-- `--phi linear`
-- `--alpha 0.05`
-- `--calib-frac 0.5`
-- `--diagnostic-bins 10`（条件分箱诊断）
+- Width scaling: `S13-S16`
+- Depth scaling: `S17-S20`
+- GPT-2 presets: `S21-S24`
 
-### 3.3 S13-S24（Architecture + noisy linear）
+配置文件（直接点开）：
 
-你要看的最小代码集合：
+- [S13_gpt2_w32_d6_nlr80x40.yaml](src/conf/gpt/S13_gpt2_w32_d6_nlr80x40.yaml)
+- [S14_gpt2_w64_d6_nlr80x40.yaml](src/conf/gpt/S14_gpt2_w64_d6_nlr80x40.yaml)
+- [S15_gpt2_w128_d6_nlr80x40.yaml](src/conf/gpt/S15_gpt2_w128_d6_nlr80x40.yaml)
+- [S16_gpt2_w256_d6_nlr80x40.yaml](src/conf/gpt/S16_gpt2_w256_d6_nlr80x40.yaml)
+- [S17_gpt2_w64_d2_nlr80x40.yaml](src/conf/gpt/S17_gpt2_w64_d2_nlr80x40.yaml)
+- [S18_gpt2_w64_d4_nlr80x40.yaml](src/conf/gpt/S18_gpt2_w64_d4_nlr80x40.yaml)
+- [S19_gpt2_w64_d8_nlr80x40.yaml](src/conf/gpt/S19_gpt2_w64_d8_nlr80x40.yaml)
+- [S20_gpt2_w64_d12_nlr80x40.yaml](src/conf/gpt/S20_gpt2_w64_d12_nlr80x40.yaml)
+- [S21_gpt2_tiny_nlr80x40.yaml](src/conf/gpt/S21_gpt2_tiny_nlr80x40.yaml)
+- [S22_gpt2_small_nlr80x40.yaml](src/conf/gpt/S22_gpt2_small_nlr80x40.yaml)
+- [S23_gpt2_medium_nlr80x40.yaml](src/conf/gpt/S23_gpt2_medium_nlr80x40.yaml)
+- [S24_gpt2_large_nlr80x40.yaml](src/conf/gpt/S24_gpt2_large_nlr80x40.yaml)
 
-- 配置：`src/conf/gpt/S13_...` 到 `S24_...`
-- noisy 任务：`src/tasks.py::NoisyLinearRegression`
-- RMSE 曲线：`src/eval_icl_lr2x_ci.py`（`s_nlr80_series`）
-- 区间宽度/覆盖率：`src/eval_icl_lr2x_speedcp.py` 或 `src/eval_icl_lr2x_condconf.py`
+评估脚本：
 
-### 3.4 S52-S67（Task x Noise）
+- RMSE/误差曲线： [eval_icl_lr2x_ci.py](src/eval_icl_lr2x_ci.py)（family: `s_nlr80_series`）
+- SpeedCP宽度与覆盖率： [eval_icl_lr2x_speedcp.py](src/eval_icl_lr2x_speedcp.py)
 
-任务家族和代码对应：
+---
 
-- NLR: `NoisyLinearRegression`
-- NQR: `NoisyQuadraticRegression`
-- 2NN: `NoisyRelu2nnRegression`
-- NDT: `NoisyDecisionTree`
+## 3) Results II: Task Complexity and Signal-to-Noise Effects (`S52-S67`)
 
-都在 `src/tasks.py`。
+这部分固定架构（`w256 d12`），扫任务和噪声。
 
-配置对应：
+### Involved experiments
 
 - NLR: `S52-S55`
 - NQR: `S56-S59`
 - 2NN: `S60-S63`
 - NDT: `S64-S67`
 
-### 3.5 S69-S84（维度扫描）
+配置文件（每族给一个入口）：
 
-你要看的最小代码集合：
+- [S52_gpt2_w256_d12_nlr80x40_noise01.yaml](src/conf/gpt/S52_gpt2_w256_d12_nlr80x40_noise01.yaml)
+- [S56_gpt2_w256_d12_nqr200x40_noise01.yaml](src/conf/gpt/S56_gpt2_w256_d12_nqr200x40_noise01.yaml)
+- [S60_gpt2_w256_d12_n2nn200x40_noise01.yaml](src/conf/gpt/S60_gpt2_w256_d12_n2nn200x40_noise01.yaml)
+- [S64_gpt2_w256_d12_ndt200x40_noise01.yaml](src/conf/gpt/S64_gpt2_w256_d12_ndt200x40_noise01.yaml)
+- 其余噪声级别同名前缀：`noise025 / noise05 / noise10`（位于 [src/conf/gpt/](src/conf/gpt)）
 
-- 配置：`src/conf/gpt/S69_...` 到 `S84_...`
-- 训练仍是 `src/train.py`
-- 曲线评估建议从 `src/eval_icl_curve.py` 开始
-- 覆盖率/宽度走 `src/eval_icl_lr2x_speedcp.py`（常见做法是逐 run-dir 评估）
+评估脚本：
 
-## 4. SNR 在这个项目里的定义（重点）
+- RMSE/误差趋势： [eval_icl_curve.py](src/eval_icl_curve.py)
+- SpeedCP width/coverage： [eval_icl_lr2x_speedcp.py](src/eval_icl_lr2x_speedcp.py)
+- 额外 mixed-noise 评估工具： [eval_icl_mix_noise2.py](src/eval_icl_mix_noise2.py), [eval_icl_mix_noise2_ci.py](src/eval_icl_mix_noise2_ci.py), [eval_icl_mix_noise2_conformal.py](src/eval_icl_mix_noise2_conformal.py)
 
-### 4.1 参数对应
+SNR/噪声在代码中的位置：
 
-在本项目中，噪声强度由配置里的：
+- 噪声参数：`training.tasks[*].kwargs.noise_std`（见上面各 `S52-S67` 配置）
+- 噪声注入实现： [tasks.py](src/tasks.py)
+  - `NoisyLinearRegression`
+  - `NoisyQuadraticRegression`
+  - `NoisyRelu2nnRegression`
+  - `NoisyDecisionTree`
 
-- `training.tasks[*].kwargs.noise_std`
+---
 
-控制，并在 `src/tasks.py` 的 noisy 任务中以：
+## 4) Results III: Input Dimensionality Effects (`S69-S84`)
 
-- `ys_noisy = ys_clean + N(0, noise_std^2)`
+这部分看不同输入维度下的宽度/覆盖率变化。
 
-实现。
+### Involved experiments
 
-也就是：
+- NLR dims: `S69`, `S73-S75`
+- NQR dims: `S70`, `S76-S78`
+- 2NN dims: `S71`, `S79-S81`
+- NDT dims: `S72`, `S82-S84`
 
-- `sigma = noise_std`
-- `y = f(x) + epsilon, epsilon ~ N(0, sigma^2)`
+配置文件（代表项）：
 
-### 4.2 与 SNR 的关系
+- [S69_gpt2_w512_d12_nlr201x100.yaml](src/conf/gpt/S69_gpt2_w512_d12_nlr201x100.yaml)
+- [S70_gpt2_w512_d12_nqr501x100.yaml](src/conf/gpt/S70_gpt2_w512_d12_nqr501x100.yaml)
+- [S71_gpt2_w512_d12_n2nn501x100.yaml](src/conf/gpt/S71_gpt2_w512_d12_n2nn501x100.yaml)
+- [S72_gpt2_w512_d12_ndt501x100.yaml](src/conf/gpt/S72_gpt2_w512_d12_ndt501x100.yaml)
+- 其余同组维度配置： [src/conf/gpt/](src/conf/gpt)
 
-常用定义（功率 SNR）：
+评估脚本：
 
-- `SNR_power = Var(signal) / Var(noise)`
+- RMSE/误差曲线： [eval_icl_curve.py](src/eval_icl_curve.py)
+- final-L coverage/width（SpeedCP）： [eval_icl_lr2x_speedcp.py](src/eval_icl_lr2x_speedcp.py)
 
-在你这套配置里（尤其线性回归），大量实验使用 `normalize_w: True`，并且 `x ~ N(0, I)`，会让信号尺度大体稳定在同一量级，因此可以近似把：
+---
 
-- `SNR_power` 看作与 `1 / sigma^2` 同量级。
+## 5) Commands you actually run
 
-对应关系（近似）：
-
-- `sigma=0.1` -> `SNR_power ~ 100`（高 SNR）
-- `sigma=0.25` -> `SNR_power ~ 16`
-- `sigma=0.5` -> `SNR_power ~ 4`
-- `sigma=1.0` -> `SNR_power ~ 1`（低 SNR）
-
-这和 main.tex 里的结论一致：sigma 越大，RMSE floor 越高，区间越难收缩。
-
-### 4.3 混合噪声实验怎么对应
-
-两种模式：
-
-1. 多任务混合噪声（配置里直接写多个 task，不同 `noise_std`）
-   - 例如 `S32_gpt2_w64_d12_mixnoise4_80x40.yaml`
-2. 单 task 内部随机噪声级别（代码内采样）
-   - `src/tasks.py::NoisyQuadraticRegressionMix4`
-
-### 4.4 一个易踩坑
-
-`src/tasks.py` 里的 noisy 任务都支持 `renormalize_ys`。如果打开它，会改变输出尺度，从而改变“你以为的 SNR”。
-当前 S 系列配置默认是按 `noise_std` 直接加噪，通常不启用该选项。
-
-## 5. 最小可复现实验路径（按 main.tex）
-
-### 5.1 训练一个 S01
+训练（任意实验配置）：
 
 ```bash
-python src/train.py --config src/conf/gpt/S01_gpt2_w32_d6_lr.yaml
+python src/train.py --config src/conf/gpt/<YOUR_EXPERIMENT>.yaml
 ```
 
-### 5.2 画 S01-S12 的 ICL 误差曲线（CI）
+Results I（S13-S24）示例：
 
 ```bash
-python src/eval_icl_lr2x_ci.py --results-dir ../results --family s_series --prefer-model-step 400000
+python src/eval_icl_lr2x_ci.py --results-dir ../results --family s_nlr80_series
+python src/eval_icl_lr2x_speedcp.py --results-dir ../results --family s_nlr80_series
 ```
 
-### 5.3 跑 CondConf（s_proj）
+Results II（S52-S67）示例：
 
 ```bash
-python src/eval_icl_lr2x_condconf.py \
-  --results-dir ../results \
-  --family s_series \
-  --alpha 0.05 \
-  --x-features s_proj \
-  --phi linear \
-  --calib-frac 0.5 \
-  --num-eval-examples 6400 \
-  --diagnostic-bins 10
+python src/eval_icl_curve.py --results-dir ../results --exps S52_gpt2_w256_d12_nlr80x40_noise01
+python src/eval_icl_lr2x_speedcp.py --run-dir ../results/S52_gpt2_w256_d12_nlr80x40_noise01/<run_uuid>
 ```
 
-## 6. 当前分支的已知状态
+Results III（S69-S84）示例：
 
-当前 `src/` 中以下评估脚本依赖 `ckpt_utils.py`：
+```bash
+python src/eval_icl_curve.py --results-dir ../results --exps S69_gpt2_w512_d12_nlr201x100
+python src/eval_icl_lr2x_speedcp.py --run-dir ../results/S69_gpt2_w512_d12_nlr201x100/<run_uuid>
+```
 
-- `eval_icl_lr2x_ci.py`
-- `eval_icl_lr2x_conformal.py`
-- `eval_icl_lr2x_condconf.py`
-- `eval_icl_lr2x_speedcp.py`
-- `eval_icl_mix_noise2.py`
-- `eval_icl_mix_noise2_ci.py`
-- `eval_icl_mix_noise2_conformal.py`
+---
 
-如果你保持“只留 src 且已删 `ckpt_utils.py`”的状态，上述脚本会先报 `ModuleNotFoundError`，需要先恢复该工具文件后再跑。
+## 6) Important note
+
+当前若缺少 `src/ckpt_utils.py`，部分评估脚本会直接报错（`ModuleNotFoundError: ckpt_utils`）。
+受影响脚本包括：
+
+- [eval_icl_lr2x_ci.py](src/eval_icl_lr2x_ci.py)
+- [eval_icl_lr2x_condconf.py](src/eval_icl_lr2x_condconf.py)
+- [eval_icl_lr2x_conformal.py](src/eval_icl_lr2x_conformal.py)
+- [eval_icl_lr2x_speedcp.py](src/eval_icl_lr2x_speedcp.py)
+- [eval_icl_mix_noise2.py](src/eval_icl_mix_noise2.py)
+- [eval_icl_mix_noise2_ci.py](src/eval_icl_mix_noise2_ci.py)
+- [eval_icl_mix_noise2_conformal.py](src/eval_icl_mix_noise2_conformal.py)
