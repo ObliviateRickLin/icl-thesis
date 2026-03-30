@@ -22,15 +22,15 @@
 
 代码落点：
 
-- 训练主入口: [train.py](src/train.py)
-- 任务定义（NLR/NQR/2NN/NDT + noise）: [tasks.py](src/tasks.py)
-- 课程学习（维度、点数）: [curriculum.py](src/curriculum.py)
-- 通用评估聚合（mean/bootstrap）: [eval.py](src/eval.py)
-- SpeedCP/CondConf实现: [speedcp_conformal.py](src/uq/speedcp_conformal.py), [conditional_conformal.py](src/uq/conditional_conformal.py)
+- 训练主入口: [train.py](train_icl/train.py)
+- 任务定义（NLR/NQR/2NN/NDT + noise）: [tasks.py](train_icl/tasks.py)
+- 课程学习（维度、点数）: [curriculum.py](train_icl/curriculum.py)
+- 通用评估聚合（mean/bootstrap）: [eval.py](train_icl/eval.py)
+- SpeedCP/CondConf实现: [speedcp_conformal.py](train_icl/uq/speedcp_conformal.py), [conditional_conformal.py](train_icl/uq/conditional_conformal.py)
 
 配置入口（全部实验配置目录）：
 
-- [src/conf/gpt/](src/conf/gpt)
+- [train_icl/conf/gpt/](train_icl/conf/gpt)
 
 ---
 
@@ -46,23 +46,23 @@
 
 配置文件（直接点开）：
 
-- [S13_gpt2_w32_d6_nlr80x40.yaml](src/conf/gpt/S13_gpt2_w32_d6_nlr80x40.yaml)
-- [S14_gpt2_w64_d6_nlr80x40.yaml](src/conf/gpt/S14_gpt2_w64_d6_nlr80x40.yaml)
-- [S15_gpt2_w128_d6_nlr80x40.yaml](src/conf/gpt/S15_gpt2_w128_d6_nlr80x40.yaml)
-- [S16_gpt2_w256_d6_nlr80x40.yaml](src/conf/gpt/S16_gpt2_w256_d6_nlr80x40.yaml)
-- [S17_gpt2_w64_d2_nlr80x40.yaml](src/conf/gpt/S17_gpt2_w64_d2_nlr80x40.yaml)
-- [S18_gpt2_w64_d4_nlr80x40.yaml](src/conf/gpt/S18_gpt2_w64_d4_nlr80x40.yaml)
-- [S19_gpt2_w64_d8_nlr80x40.yaml](src/conf/gpt/S19_gpt2_w64_d8_nlr80x40.yaml)
-- [S20_gpt2_w64_d12_nlr80x40.yaml](src/conf/gpt/S20_gpt2_w64_d12_nlr80x40.yaml)
-- [S21_gpt2_tiny_nlr80x40.yaml](src/conf/gpt/S21_gpt2_tiny_nlr80x40.yaml)
-- [S22_gpt2_small_nlr80x40.yaml](src/conf/gpt/S22_gpt2_small_nlr80x40.yaml)
-- [S23_gpt2_medium_nlr80x40.yaml](src/conf/gpt/S23_gpt2_medium_nlr80x40.yaml)
-- [S24_gpt2_large_nlr80x40.yaml](src/conf/gpt/S24_gpt2_large_nlr80x40.yaml)
+- [S13_gpt2_w32_d6_nlr80x40.yaml](train_icl/conf/gpt/S13_gpt2_w32_d6_nlr80x40.yaml)
+- [S14_gpt2_w64_d6_nlr80x40.yaml](train_icl/conf/gpt/S14_gpt2_w64_d6_nlr80x40.yaml)
+- [S15_gpt2_w128_d6_nlr80x40.yaml](train_icl/conf/gpt/S15_gpt2_w128_d6_nlr80x40.yaml)
+- [S16_gpt2_w256_d6_nlr80x40.yaml](train_icl/conf/gpt/S16_gpt2_w256_d6_nlr80x40.yaml)
+- [S17_gpt2_w64_d2_nlr80x40.yaml](train_icl/conf/gpt/S17_gpt2_w64_d2_nlr80x40.yaml)
+- [S18_gpt2_w64_d4_nlr80x40.yaml](train_icl/conf/gpt/S18_gpt2_w64_d4_nlr80x40.yaml)
+- [S19_gpt2_w64_d8_nlr80x40.yaml](train_icl/conf/gpt/S19_gpt2_w64_d8_nlr80x40.yaml)
+- [S20_gpt2_w64_d12_nlr80x40.yaml](train_icl/conf/gpt/S20_gpt2_w64_d12_nlr80x40.yaml)
+- [S21_gpt2_tiny_nlr80x40.yaml](train_icl/conf/gpt/S21_gpt2_tiny_nlr80x40.yaml)
+- [S22_gpt2_small_nlr80x40.yaml](train_icl/conf/gpt/S22_gpt2_small_nlr80x40.yaml)
+- [S23_gpt2_medium_nlr80x40.yaml](train_icl/conf/gpt/S23_gpt2_medium_nlr80x40.yaml)
+- [S24_gpt2_large_nlr80x40.yaml](train_icl/conf/gpt/S24_gpt2_large_nlr80x40.yaml)
 
 评估脚本：
 
-- RMSE/误差曲线： [eval_icl_lr2x_ci.py](src/eval_icl_lr2x_ci.py)（family: `s_nlr80_series`）
-- SpeedCP宽度与覆盖率： [eval_icl_lr2x_speedcp.py](src/eval_icl_lr2x_speedcp.py)
+- RMSE/误差曲线： [eval_icl_lr2x_ci.py](train_icl/eval_icl_lr2x_ci.py)（family: `s_nlr80_series`）
+- SpeedCP宽度与覆盖率： [eval_icl_lr2x_speedcp.py](train_icl/eval_icl_lr2x_speedcp.py)
 
 ---
 
@@ -79,22 +79,22 @@
 
 配置文件（每族给一个入口）：
 
-- [S52_gpt2_w256_d12_nlr80x40_noise01.yaml](src/conf/gpt/S52_gpt2_w256_d12_nlr80x40_noise01.yaml)
-- [S56_gpt2_w256_d12_nqr200x40_noise01.yaml](src/conf/gpt/S56_gpt2_w256_d12_nqr200x40_noise01.yaml)
-- [S60_gpt2_w256_d12_n2nn200x40_noise01.yaml](src/conf/gpt/S60_gpt2_w256_d12_n2nn200x40_noise01.yaml)
-- [S64_gpt2_w256_d12_ndt200x40_noise01.yaml](src/conf/gpt/S64_gpt2_w256_d12_ndt200x40_noise01.yaml)
-- 其余噪声级别同名前缀：`noise025 / noise05 / noise10`（位于 [src/conf/gpt/](src/conf/gpt)）
+- [S52_gpt2_w256_d12_nlr80x40_noise01.yaml](train_icl/conf/gpt/S52_gpt2_w256_d12_nlr80x40_noise01.yaml)
+- [S56_gpt2_w256_d12_nqr200x40_noise01.yaml](train_icl/conf/gpt/S56_gpt2_w256_d12_nqr200x40_noise01.yaml)
+- [S60_gpt2_w256_d12_n2nn200x40_noise01.yaml](train_icl/conf/gpt/S60_gpt2_w256_d12_n2nn200x40_noise01.yaml)
+- [S64_gpt2_w256_d12_ndt200x40_noise01.yaml](train_icl/conf/gpt/S64_gpt2_w256_d12_ndt200x40_noise01.yaml)
+- 其余噪声级别同名前缀：`noise025 / noise05 / noise10`（位于 [train_icl/conf/gpt/](train_icl/conf/gpt)）
 
 评估脚本：
 
-- RMSE/误差趋势： [eval_icl_curve.py](src/eval_icl_curve.py)
-- SpeedCP width/coverage： [eval_icl_lr2x_speedcp.py](src/eval_icl_lr2x_speedcp.py)
-- 额外 mixed-noise 评估工具： [eval_icl_mix_noise2.py](src/eval_icl_mix_noise2.py), [eval_icl_mix_noise2_ci.py](src/eval_icl_mix_noise2_ci.py), [eval_icl_mix_noise2_conformal.py](src/eval_icl_mix_noise2_conformal.py)
+- RMSE/误差趋势： [eval_icl_curve.py](train_icl/eval_icl_curve.py)
+- SpeedCP width/coverage： [eval_icl_lr2x_speedcp.py](train_icl/eval_icl_lr2x_speedcp.py)
+- 额外 mixed-noise 评估工具： [eval_icl_mix_noise2.py](train_icl/eval_icl_mix_noise2.py), [eval_icl_mix_noise2_ci.py](train_icl/eval_icl_mix_noise2_ci.py), [eval_icl_mix_noise2_conformal.py](train_icl/eval_icl_mix_noise2_conformal.py)
 
 SNR/噪声在代码中的位置：
 
 - 噪声参数：`training.tasks[*].kwargs.noise_std`（见上面各 `S52-S67` 配置）
-- 噪声注入实现： [tasks.py](src/tasks.py)
+- 噪声注入实现： [tasks.py](train_icl/tasks.py)
   - `NoisyLinearRegression`
   - `NoisyQuadraticRegression`
   - `NoisyRelu2nnRegression`
@@ -115,16 +115,16 @@ SNR/噪声在代码中的位置：
 
 配置文件（代表项）：
 
-- [S69_gpt2_w512_d12_nlr201x100.yaml](src/conf/gpt/S69_gpt2_w512_d12_nlr201x100.yaml)
-- [S70_gpt2_w512_d12_nqr501x100.yaml](src/conf/gpt/S70_gpt2_w512_d12_nqr501x100.yaml)
-- [S71_gpt2_w512_d12_n2nn501x100.yaml](src/conf/gpt/S71_gpt2_w512_d12_n2nn501x100.yaml)
-- [S72_gpt2_w512_d12_ndt501x100.yaml](src/conf/gpt/S72_gpt2_w512_d12_ndt501x100.yaml)
-- 其余同组维度配置： [src/conf/gpt/](src/conf/gpt)
+- [S69_gpt2_w512_d12_nlr201x100.yaml](train_icl/conf/gpt/S69_gpt2_w512_d12_nlr201x100.yaml)
+- [S70_gpt2_w512_d12_nqr501x100.yaml](train_icl/conf/gpt/S70_gpt2_w512_d12_nqr501x100.yaml)
+- [S71_gpt2_w512_d12_n2nn501x100.yaml](train_icl/conf/gpt/S71_gpt2_w512_d12_n2nn501x100.yaml)
+- [S72_gpt2_w512_d12_ndt501x100.yaml](train_icl/conf/gpt/S72_gpt2_w512_d12_ndt501x100.yaml)
+- 其余同组维度配置： [train_icl/conf/gpt/](train_icl/conf/gpt)
 
 评估脚本：
 
-- RMSE/误差曲线： [eval_icl_curve.py](src/eval_icl_curve.py)
-- final-L coverage/width（SpeedCP）： [eval_icl_lr2x_speedcp.py](src/eval_icl_lr2x_speedcp.py)
+- RMSE/误差曲线： [eval_icl_curve.py](train_icl/eval_icl_curve.py)
+- final-L coverage/width（SpeedCP）： [eval_icl_lr2x_speedcp.py](train_icl/eval_icl_lr2x_speedcp.py)
 
 ---
 
@@ -133,28 +133,28 @@ SNR/噪声在代码中的位置：
 训练（任意实验配置）：
 
 ```bash
-python src/train.py --config src/conf/gpt/<YOUR_EXPERIMENT>.yaml
+python train_icl/train.py --config train_icl/conf/gpt/<YOUR_EXPERIMENT>.yaml
 ```
 
 Results I（S13-S24）示例：
 
 ```bash
-python src/eval_icl_lr2x_ci.py --results-dir ../results --family s_nlr80_series
-python src/eval_icl_lr2x_speedcp.py --results-dir ../results --family s_nlr80_series
+python train_icl/eval_icl_lr2x_ci.py --results-dir ../results --family s_nlr80_series
+python train_icl/eval_icl_lr2x_speedcp.py --results-dir ../results --family s_nlr80_series
 ```
 
 Results II（S52-S67）示例：
 
 ```bash
-python src/eval_icl_curve.py --results-dir ../results --exps S52_gpt2_w256_d12_nlr80x40_noise01
-python src/eval_icl_lr2x_speedcp.py --run-dir ../results/S52_gpt2_w256_d12_nlr80x40_noise01/<run_uuid>
+python train_icl/eval_icl_curve.py --results-dir ../results --exps S52_gpt2_w256_d12_nlr80x40_noise01
+python train_icl/eval_icl_lr2x_speedcp.py --run-dir ../results/S52_gpt2_w256_d12_nlr80x40_noise01/<run_uuid>
 ```
 
 Results III（S69-S84）示例：
 
 ```bash
-python src/eval_icl_curve.py --results-dir ../results --exps S69_gpt2_w512_d12_nlr201x100
-python src/eval_icl_lr2x_speedcp.py --run-dir ../results/S69_gpt2_w512_d12_nlr201x100/<run_uuid>
+python train_icl/eval_icl_curve.py --results-dir ../results --exps S69_gpt2_w512_d12_nlr201x100
+python train_icl/eval_icl_lr2x_speedcp.py --run-dir ../results/S69_gpt2_w512_d12_nlr201x100/<run_uuid>
 ```
 
 ---
@@ -180,8 +180,8 @@ $$
 
 ### 1) `noisy_linear_regression`（`S69/S73/S74/S75`）
 
-- 配置里 `noise_std=0.1` 且 `normalize_w=True`（例如 [S69_gpt2_w512_d12_nlr201x100.yaml](src/conf/gpt/S69_gpt2_w512_d12_nlr201x100.yaml)）
-- 线性回归在 `normalize_w=True` 时使用 `scale / sqrt(n_dims)` 缩放（见 [tasks.py](src/tasks.py)）
+- 配置里 `noise_std=0.1` 且 `normalize_w=True`（例如 [S69_gpt2_w512_d12_nlr201x100.yaml](train_icl/conf/gpt/S69_gpt2_w512_d12_nlr201x100.yaml)）
+- 线性回归在 `normalize_w=True` 时使用 `scale / sqrt(n_dims)` 缩放（见 [tasks.py](train_icl/tasks.py)）
 - 然后加噪声 `+ N(0, noise_std^2)`
 
 在 `xs ~ N(0,1), w ~ N(0,1), scale=1` 下：
@@ -199,8 +199,8 @@ $$
 
 ### 2) `noisy_quadratic_regression`（`S70/S76/S77/S78`）
 
-- 配置同样 `normalize_w=True`、`noise_std=0.1`（例如 [S70_gpt2_w512_d12_nqr501x100.yaml](src/conf/gpt/S70_gpt2_w512_d12_nqr501x100.yaml)）
-- 二次回归内部有 `1/sqrt(3)` 的对齐缩放，并在 `normalize_w=True` 时再除以 `sqrt(n_dims)`（见 [tasks.py](src/tasks.py)）
+- 配置同样 `normalize_w=True`、`noise_std=0.1`（例如 [S70_gpt2_w512_d12_nqr501x100.yaml](train_icl/conf/gpt/S70_gpt2_w512_d12_nqr501x100.yaml)）
+- 二次回归内部有 `1/sqrt(3)` 的对齐缩放，并在 `normalize_w=True` 时再除以 `sqrt(n_dims)`（见 [tasks.py](train_icl/tasks.py)）
 - 最后加噪声（同 noisy 体系）
 
 这套缩放让 $Var(y_{clean}) \approx 1$，因此同样有：
@@ -213,8 +213,8 @@ $$
 
 ### 3) `noisy_relu_2nn_regression`（`S71/S79/S80/S81`）
 
-- 配置里 `hidden_layer_size=4`、`normalize_w=True`、`noise_std=0.1`（例如 [S71_gpt2_w512_d12_n2nn501x100.yaml](src/conf/gpt/S71_gpt2_w512_d12_n2nn501x100.yaml)）
-- 2NN 实现会在 `normalize_w=True` 时做 `xs / sqrt(n_dims)`，输出再乘 `sqrt(2/hidden_layer_size)` 稳定方差（见 [tasks.py](src/tasks.py)）
+- 配置里 `hidden_layer_size=4`、`normalize_w=True`、`noise_std=0.1`（例如 [S71_gpt2_w512_d12_n2nn501x100.yaml](train_icl/conf/gpt/S71_gpt2_w512_d12_n2nn501x100.yaml)）
+- 2NN 实现会在 `normalize_w=True` 时做 `xs / sqrt(n_dims)`，输出再乘 `sqrt(2/hidden_layer_size)` 稳定方差（见 [tasks.py](train_icl/tasks.py)）
 - 最后加 `noise_std` 高斯噪声
 
 因此该任务也被设计为 $Var(y_{clean})$ 近似常数（约 1）：
@@ -227,8 +227,8 @@ $$
 
 ### 4) `noisy_decision_tree`（`S72/S82/S83/S84`）
 
-- 配置里 `depth=4`、`noise_std=0.1`（例如 [S72_gpt2_w512_d12_ndt501x100.yaml](src/conf/gpt/S72_gpt2_w512_d12_ndt501x100.yaml)）
-- 决策树目标值 `target_tensor` 来自 `torch.randn(...)`（方差近似 1，见 [tasks.py](src/tasks.py)）
+- 配置里 `depth=4`、`noise_std=0.1`（例如 [S72_gpt2_w512_d12_ndt501x100.yaml](train_icl/conf/gpt/S72_gpt2_w512_d12_ndt501x100.yaml)）
+- 决策树目标值 `target_tensor` 来自 `torch.randn(...)`（方差近似 1，见 [tasks.py](train_icl/tasks.py)）
 - 然后加噪声 `+ N(0, noise_std^2)`
 
 所以也有：

@@ -68,6 +68,6 @@ All styles are in `data_utils.py::_build_prompt()`:
 | Mistral-Large-2411 | 123B | vLLM |
 | Qwen3-32B / 14B / 8B / 0.6B | 0.6B–32B | vLLM |
 
-## Relationship to `src/` (train_icl)
+## Relationship to `train_icl/` (train_icl)
 
-`src/` contains code for **training** transformers from scratch on ICL tasks (the main text experiments). `pretrain_icl/` is **self-contained** and evaluates pretrained LLMs without training. Shared files (`tasks.py`, `samplers.py`) are copied here for independence.
+`train_icl/` contains code for **training** transformers from scratch on ICL tasks (the main text experiments). `pretrain_icl/` is **self-contained** and evaluates pretrained LLMs without training. Shared files (`tasks.py`, `samplers.py`) are copied here for independence.
