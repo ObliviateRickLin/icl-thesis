@@ -13,8 +13,8 @@ import urllib.request
 from pathlib import Path
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "src"))
-from eval_icl_llm_rmse import (
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from data_utils import (
     _seed_everything, collect_xy, _build_prompt, _parse_prediction,
 )
 
