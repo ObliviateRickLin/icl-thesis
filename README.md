@@ -1,256 +1,163 @@
-﻿# Experiments Mapping
+# ICL-Thesis
 
-下面的内容为代码导读，将具体的代码片段和原文的实验设置一一对应。
+**Conditional Conformal Prediction for In-Context Learning: Architecture Scaling, Task Complexity, and Signal-to-Noise Effects**
 
-## Experiments at a glance
-
-| `main.tex` section | Experiment IDs | What changes | Core metrics |
-|---|---|---|---|
-| Results I: Architecture Scaling Effects | `S13-S24` | 架构宽度/深度/GPT2 preset（任务固定 NLR, `sigma=0.1`） | RMSE, SpeedCP width, coverage |
-| Results II: Task Complexity and Signal-to-Noise Effects | `S52-S67` | 任务族（NLR/NQR/2NN/NDT）和噪声（`sigma in {0.1,0.25,0.5,1.0}`） | RMSE, SpeedCP width, coverage, final-L box/coverage |
-| Results III: Input Dimensionality Effects | `S69-S84` | 维度扫描（`d in {10,20,40,100}`） | final-L width/coverage, width distribution |
+*Master's Thesis, Department of Statistics, UCLA, 2026*
 
 ---
 
-## 1) Experimental Setup (from `main.tex`)
+## Overview
 
-对应 `main.tex` 的 `Experimental Setup` 三小节：
+This repository contains all code for the thesis, organized into two independent modules:
 
-- Transformer architectures
-- Regression tasks + noise
-- Conformal evaluation protocol
+| Module | Description | Key Question |
+|--------|-------------|--------------|
+| [`train_icl/`](#train_icl) | Train GPT-2 style transformers from scratch on synthetic regression tasks | How do architecture, task complexity, noise, and dimensionality affect ICL and conformal prediction? |
+| [`pretrain_icl/`](#pretrain_icl) | Evaluate pretrained LLMs (Nemotron-120B, Mistral-Large, Qwen3) on the same tasks via vLLM | What regression mechanism does pretrained ICL implement? |
 
-代码落点：
+## Repository Structure
 
-- 训练主入口: [train.py](train_icl/train.py)
-- 任务定义（NLR/NQR/2NN/NDT + noise）: [tasks.py](train_icl/tasks.py)
-- 课程学习（维度、点数）: [curriculum.py](train_icl/curriculum.py)
-- 通用评估聚合（mean/bootstrap）: [eval.py](train_icl/eval.py)
-- SpeedCP/CondConf实现: [speedcp_conformal.py](train_icl/uq/speedcp_conformal.py), [conditional_conformal.py](train_icl/uq/conditional_conformal.py)
-
-配置入口（全部实验配置目录）：
-
-- [train_icl/conf/gpt/](train_icl/conf/gpt)
-
----
-
-## 2) Results I: Architecture Scaling Effects (`S13-S24`)
-
-这部分固定任务为 noisy linear regression (`sigma=0.1`)，比较架构能力。
-
-### Involved experiments
-
-- Width scaling: `S13-S16`
-- Depth scaling: `S17-S20`
-- GPT-2 presets: `S21-S24`
-
-配置文件（直接点开）：
-
-- [S13_gpt2_w32_d6_nlr80x40.yaml](train_icl/conf/gpt/S13_gpt2_w32_d6_nlr80x40.yaml)
-- [S14_gpt2_w64_d6_nlr80x40.yaml](train_icl/conf/gpt/S14_gpt2_w64_d6_nlr80x40.yaml)
-- [S15_gpt2_w128_d6_nlr80x40.yaml](train_icl/conf/gpt/S15_gpt2_w128_d6_nlr80x40.yaml)
-- [S16_gpt2_w256_d6_nlr80x40.yaml](train_icl/conf/gpt/S16_gpt2_w256_d6_nlr80x40.yaml)
-- [S17_gpt2_w64_d2_nlr80x40.yaml](train_icl/conf/gpt/S17_gpt2_w64_d2_nlr80x40.yaml)
-- [S18_gpt2_w64_d4_nlr80x40.yaml](train_icl/conf/gpt/S18_gpt2_w64_d4_nlr80x40.yaml)
-- [S19_gpt2_w64_d8_nlr80x40.yaml](train_icl/conf/gpt/S19_gpt2_w64_d8_nlr80x40.yaml)
-- [S20_gpt2_w64_d12_nlr80x40.yaml](train_icl/conf/gpt/S20_gpt2_w64_d12_nlr80x40.yaml)
-- [S21_gpt2_tiny_nlr80x40.yaml](train_icl/conf/gpt/S21_gpt2_tiny_nlr80x40.yaml)
-- [S22_gpt2_small_nlr80x40.yaml](train_icl/conf/gpt/S22_gpt2_small_nlr80x40.yaml)
-- [S23_gpt2_medium_nlr80x40.yaml](train_icl/conf/gpt/S23_gpt2_medium_nlr80x40.yaml)
-- [S24_gpt2_large_nlr80x40.yaml](train_icl/conf/gpt/S24_gpt2_large_nlr80x40.yaml)
-
-评估脚本：
-
-- RMSE/误差曲线： [eval_icl_lr2x_ci.py](train_icl/eval_icl_lr2x_ci.py)（family: `s_nlr80_series`）
-- SpeedCP宽度与覆盖率： [eval_icl_lr2x_speedcp.py](train_icl/eval_icl_lr2x_speedcp.py)
-
----
-
-## 3) Results II: Task Complexity and Signal-to-Noise Effects (`S52-S67`)
-
-这部分固定架构（`w256 d12`），扫任务和噪声。
-
-### Involved experiments
-
-- NLR: `S52-S55`
-- NQR: `S56-S59`
-- 2NN: `S60-S63`
-- NDT: `S64-S67`
-
-配置文件（每族给一个入口）：
-
-- [S52_gpt2_w256_d12_nlr80x40_noise01.yaml](train_icl/conf/gpt/S52_gpt2_w256_d12_nlr80x40_noise01.yaml)
-- [S56_gpt2_w256_d12_nqr200x40_noise01.yaml](train_icl/conf/gpt/S56_gpt2_w256_d12_nqr200x40_noise01.yaml)
-- [S60_gpt2_w256_d12_n2nn200x40_noise01.yaml](train_icl/conf/gpt/S60_gpt2_w256_d12_n2nn200x40_noise01.yaml)
-- [S64_gpt2_w256_d12_ndt200x40_noise01.yaml](train_icl/conf/gpt/S64_gpt2_w256_d12_ndt200x40_noise01.yaml)
-- 其余噪声级别同名前缀：`noise025 / noise05 / noise10`（位于 [train_icl/conf/gpt/](train_icl/conf/gpt)）
-
-评估脚本：
-
-- RMSE/误差趋势： [eval_icl_curve.py](train_icl/eval_icl_curve.py)
-- SpeedCP width/coverage： [eval_icl_lr2x_speedcp.py](train_icl/eval_icl_lr2x_speedcp.py)
-- 额外 mixed-noise 评估工具： [eval_icl_mix_noise2.py](train_icl/eval_icl_mix_noise2.py), [eval_icl_mix_noise2_ci.py](train_icl/eval_icl_mix_noise2_ci.py), [eval_icl_mix_noise2_conformal.py](train_icl/eval_icl_mix_noise2_conformal.py)
-
-SNR/噪声在代码中的位置：
-
-- 噪声参数：`training.tasks[*].kwargs.noise_std`（见上面各 `S52-S67` 配置）
-- 噪声注入实现： [tasks.py](train_icl/tasks.py)
-  - `NoisyLinearRegression`
-  - `NoisyQuadraticRegression`
-  - `NoisyRelu2nnRegression`
-  - `NoisyDecisionTree`
-
----
-
-## 4) Results III: Input Dimensionality Effects (`S69-S84`)
-
-这部分看不同输入维度下的宽度/覆盖率变化。
-
-### Involved experiments
-
-- NLR dims: `S69`, `S73-S75`
-- NQR dims: `S70`, `S76-S78`
-- 2NN dims: `S71`, `S79-S81`
-- NDT dims: `S72`, `S82-S84`
-
-配置文件（代表项）：
-
-- [S69_gpt2_w512_d12_nlr201x100.yaml](train_icl/conf/gpt/S69_gpt2_w512_d12_nlr201x100.yaml)
-- [S70_gpt2_w512_d12_nqr501x100.yaml](train_icl/conf/gpt/S70_gpt2_w512_d12_nqr501x100.yaml)
-- [S71_gpt2_w512_d12_n2nn501x100.yaml](train_icl/conf/gpt/S71_gpt2_w512_d12_n2nn501x100.yaml)
-- [S72_gpt2_w512_d12_ndt501x100.yaml](train_icl/conf/gpt/S72_gpt2_w512_d12_ndt501x100.yaml)
-- 其余同组维度配置： [train_icl/conf/gpt/](train_icl/conf/gpt)
-
-评估脚本：
-
-- RMSE/误差曲线： [eval_icl_curve.py](train_icl/eval_icl_curve.py)
-- final-L coverage/width（SpeedCP）： [eval_icl_lr2x_speedcp.py](train_icl/eval_icl_lr2x_speedcp.py)
-
----
-
-## 5) Commands you actually run
-
-训练（任意实验配置）：
-
-```bash
-python train_icl/train.py --config train_icl/conf/gpt/<YOUR_EXPERIMENT>.yaml
 ```
-
-Results I（S13-S24）示例：
-
-```bash
-python train_icl/eval_icl_lr2x_ci.py --results-dir ../results --family s_nlr80_series
-python train_icl/eval_icl_lr2x_speedcp.py --results-dir ../results --family s_nlr80_series
-```
-
-Results II（S52-S67）示例：
-
-```bash
-python train_icl/eval_icl_curve.py --results-dir ../results --exps S52_gpt2_w256_d12_nlr80x40_noise01
-python train_icl/eval_icl_lr2x_speedcp.py --run-dir ../results/S52_gpt2_w256_d12_nlr80x40_noise01/<run_uuid>
-```
-
-Results III（S69-S84）示例：
-
-```bash
-python train_icl/eval_icl_curve.py --results-dir ../results --exps S69_gpt2_w512_d12_nlr201x100
-python train_icl/eval_icl_lr2x_speedcp.py --run-dir ../results/S69_gpt2_w512_d12_nlr201x100/<run_uuid>
+icl-thesis/
+├── train_icl/                    # Part I: Trained Transformers
+│   ├── train.py                  #   Training entry point
+│   ├── models.py                 #   GPT-2 decoder architectures
+│   ├── tasks.py                  #   Task definitions (NLR, NQR, 2NN, DT)
+│   ├── samplers.py               #   Data samplers
+│   ├── curriculum.py             #   Dimension & context length curriculum
+│   ├── eval.py                   #   General evaluation utilities
+│   ├── eval_icl_lr2x_speedcp.py  #   SpeedCP conformal evaluation
+│   ├── eval_icl_lr2x_ci.py       #   RMSE with confidence intervals
+│   ├── eval_icl_curve.py         #   ICL learning curves
+│   ├── uq/                       #   Uncertainty quantification
+│   │   ├── speedcp_conformal.py  #     SpeedCP implementation
+│   │   └── conditional_conformal.py  # CondConf implementation
+│   └── conf/gpt/                 #   All experiment configs (S13-S84)
+│
+├── pretrain_icl/                 # Part II: Pretrained LLM Evaluation
+│   ├── data_utils.py             #   Data generation + prompt building
+│   │                             #     (words2numbers + 10 other formats)
+│   ├── tasks.py                  #   Task definitions (self-contained copy)
+│   ├── samplers.py               #   Data samplers (self-contained copy)
+│   ├── run_icl_sweep.py          #   Full sweep: tasks x dims x L
+│   ├── run_snr_sweep.py          #   Noise sensitivity experiment
+│   ├── plot_appendix_figures.py  #   ICL curves, dim/scale effect figures
+│   ├── plot_snr_figure.py        #   SNR sensitivity figure
+│   ├── plot_mechanism_comparison.py  # Mechanism comparison (6-panel)
+│   └── README.md                 #   Detailed usage instructions
+│
+├── README.md                     # This file
+└── environment.yml               # Conda environment
 ```
 
 ---
 
-## 6) Why SNR is consistent in Experiment III
+## `train_icl/`
 
-目前因为已经对y的尺度随着维度做了normalization, 所以不同的维度的SNR已经保持一致，都是100，具体解释如下。
+Code for training GPT-2 style transformers from scratch on synthetic regression, then evaluating ICL performance and SpeedCP conformal prediction intervals.
 
-在现在做的这套 **4x4（4 种任务 x 4 个 max-dim）** 里，SNR我们做如下定义
+### Experiments
 
-$$
-\text{SNR} := \frac{Var(y_{clean})}{Var(\\epsilon)}
-= \frac{Var(y_{clean})}{\sigma^2},
-\quad \epsilon \sim N(0,\sigma^2)
-$$
+| Thesis Section | Experiments | What Varies | Architecture |
+|----------------|-------------|-------------|--------------|
+| Results I: Architecture Scaling | S13-S24 | Width, depth, GPT-2 presets | Variable |
+| Results II: Task & Noise | S52-S67 | 4 tasks x 4 noise levels | w256 d12 |
+| Results III: Dimensionality | S69-S84 | d in {10, 20, 40, 100} | w512 d12 |
 
-那么结论是：
+### Quick Start
 
-- **在同一种实验种类（同一个 task）下，当前 SNR 是常数（不随 dim / L 变化）**
-- **并且可以直接算出来（主要由 `noise_std` 决定）**
+```bash
+# Train
+python train_icl/train.py --config train_icl/conf/gpt/S16_gpt2_w256_d6_nlr80x40.yaml
 
-原因是：`xs` 由高斯采样（`torch.randn(...)`），并且这四类任务的生成都被显式做了“方差归一化”到 O(1) 量级。
+# Evaluate RMSE
+python train_icl/eval_icl_lr2x_ci.py --results-dir results/ --family s_nlr80_series
 
-### 1) `noisy_linear_regression`（`S69/S73/S74/S75`）
+# Evaluate SpeedCP conformal intervals
+python train_icl/eval_icl_lr2x_speedcp.py --results-dir results/ --family s_nlr80_series
+```
 
-- 配置里 `noise_std=0.1` 且 `normalize_w=True`（例如 [S69_gpt2_w512_d12_nlr201x100.yaml](train_icl/conf/gpt/S69_gpt2_w512_d12_nlr201x100.yaml)）
-- 线性回归在 `normalize_w=True` 时使用 `scale / sqrt(n_dims)` 缩放（见 [tasks.py](train_icl/tasks.py)）
-- 然后加噪声 `+ N(0, noise_std^2)`
+### Tasks
 
-在 `xs ~ N(0,1), w ~ N(0,1), scale=1` 下：
+All defined in [`train_icl/tasks.py`](train_icl/tasks.py):
 
-- $Var(y_{clean}) \approx 1$
-- $Var(\\epsilon) = \sigma^2$
+| Task | Function | Noise |
+|------|----------|-------|
+| NLR | $y = w^\top x + \varepsilon$ | $\varepsilon \sim \mathcal{N}(0, \sigma^2)$ |
+| NQR | $y = (w^\top x)^2 + \varepsilon$ | Quadratic in projected direction |
+| 2NN | $y = W_2 \cdot \text{ReLU}(W_1 x) + \varepsilon$ | 2-layer neural network |
+| DT | $y = \text{DecisionTree}(x) + \varepsilon$ | Random decision tree |
 
-所以：
+---
 
-$$
-\text{SNR} \approx \frac{1}{\sigma^2}
-$$
+## `pretrain_icl/`
 
-当前这组 `sigma=0.1`，即 **SNR 约为 100（约 20 dB）**。
+Self-contained code for evaluating pretrained LLMs on the same synthetic regression tasks via vLLM. No dependency on `train_icl/`.
 
-### 2) `noisy_quadratic_regression`（`S70/S76/S77/S78`）
+### Models Evaluated
 
-- 配置同样 `normalize_w=True`、`noise_std=0.1`（例如 [S70_gpt2_w512_d12_nqr501x100.yaml](train_icl/conf/gpt/S70_gpt2_w512_d12_nqr501x100.yaml)）
-- 二次回归内部有 `1/sqrt(3)` 的对齐缩放，并在 `normalize_w=True` 时再除以 `sqrt(n_dims)`（见 [tasks.py](train_icl/tasks.py)）
-- 最后加噪声（同 noisy 体系）
+| Model | Parameters | Type |
+|-------|-----------|------|
+| Nemotron-120B | 120B (MoE, 12B active) | Completions API |
+| Mistral-Large-2411 | 123B | Completions API |
+| Qwen3-32B / 14B / 8B / 0.6B | 0.6B - 32B | Completions API |
 
-这套缩放让 $Var(y_{clean}) \approx 1$，因此同样有：
+### Quick Start
 
-$$
-\text{SNR} \approx \frac{1}{\sigma^2}
-$$
+```bash
+# 1. Start vLLM
+python -m vllm.entrypoints.openai.api_server \
+    --model <path> --served-model-name <name> \
+    --tensor-parallel-size 4 --port 8100 --dtype bfloat16
 
-`sigma=0.1` 时仍约为 **100**。
+# 2. Run full sweep
+python pretrain_icl/run_icl_sweep.py \
+    --model <name> --endpoint http://127.0.0.1:8100/v1/completions
 
-### 3) `noisy_relu_2nn_regression`（`S71/S79/S80/S81`）
+# 3. Run SNR experiment
+python pretrain_icl/run_snr_sweep.py --model <name>
+```
 
-- 配置里 `hidden_layer_size=4`、`normalize_w=True`、`noise_std=0.1`（例如 [S71_gpt2_w512_d12_n2nn501x100.yaml](train_icl/conf/gpt/S71_gpt2_w512_d12_n2nn501x100.yaml)）
-- 2NN 实现会在 `normalize_w=True` 时做 `xs / sqrt(n_dims)`，输出再乘 `sqrt(2/hidden_layer_size)` 稳定方差（见 [tasks.py](train_icl/tasks.py)）
-- 最后加 `noise_std` 高斯噪声
+### Prompt Format
 
-因此该任务也被设计为 $Var(y_{clean})$ 近似常数（约 1）：
+Primary format (`words2numbers`):
+```
+The task is to provide your best estimate for "Output".
+Output only one number and nothing else.
 
-$$
-\text{SNR} \approx \frac{1}{\sigma^2}
-$$
+Feature 0: 0.34
+Feature 1: 1.49
+Output: 0.38
 
-`sigma=0.1` 时约为 **100**。
+Feature 0: 0.13
+Feature 1: -0.72
+Output:
+```
 
-### 4) `noisy_decision_tree`（`S72/S82/S83/S84`）
+10+ additional formats available in [`pretrain_icl/data_utils.py`](pretrain_icl/data_utils.py).
 
-- 配置里 `depth=4`、`noise_std=0.1`（例如 [S72_gpt2_w512_d12_ndt501x100.yaml](train_icl/conf/gpt/S72_gpt2_w512_d12_ndt501x100.yaml)）
-- 决策树目标值 `target_tensor` 来自 `torch.randn(...)`（方差近似 1，见 [tasks.py](train_icl/tasks.py)）
-- 然后加噪声 `+ N(0, noise_std^2)`
+### Key Findings
 
-所以也有：
+1. **ICL Curves**: Pretrained LLMs show meaningful ICL at $d \leq 5$, degrading to near-random at $d \geq 10$
+2. **Mechanism**: The LLM implements a rank-1 projection mechanism --- effective at $d_\text{eff} = 1$ (matching Ridge regression), but failing catastrophically at $d_\text{eff} \geq 2$ with irrelevant features
+3. **Scale Effect**: Larger models (32B vs 0.6B) consistently improve ICL, but the gap vanishes at high dimensions
+4. **SNR Sensitivity**: Higher noise degrades both the LLM and baselines, with the LLM's advantage over 1-NN shrinking at high noise
 
-$$
-\text{SNR} \approx \frac{1}{\sigma^2}
-$$
+---
 
-`sigma=0.1` 时约为 **100**。
+## Citation
 
-### 什么时候 SNR 不是常数
+```bibtex
+@mastersthesis{lin2026icl,
+  title={Conditional Conformal Prediction for In-Context Learning:
+         Architecture Scaling, Task Complexity, and Signal-to-Noise Effects},
+  author={Lin, Jinrui},
+  school={University of California, Los Angeles},
+  department={Department of Statistics},
+  year={2026}
+}
+```
 
-主要两种开关会打破“跨 dim 的常数 SNR”：
+## License
 
-1. 关闭 `normalize_w`：线性/二次/2NN 的信号方差会随维度增长（不再除以 $\sqrt{d}$）
-2. 打开 `renormalize_ys`：会对 `ys_b_noisy` 做按 std 的重标定，使输出尺度显式带上维度依赖
-
-### 结论（当前 4x4）
-
-对每一种 task（NLR / NQR / 2NN / NDT），当前配置都把 **信号方差稳定在约 1**，同时噪声方差是 $\sigma^2$（这套实验基本是 `sigma=0.1`），所以：
-
-- **SNR 是常数**
-- **可近似为：`SNR ~= 1 / noise_std^2`**
-- 现在 `noise_std=0.1`，即 **SNR 约为 100（约 20 dB）**
-
+This project is for academic purposes. Please contact the author for any usage beyond personal research.
