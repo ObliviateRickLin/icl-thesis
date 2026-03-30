@@ -88,6 +88,58 @@ All defined in [`train_icl/tasks.py`](train_icl/tasks.py):
 | 2NN | $y = W_2 \cdot \text{ReLU}(W_1 x) + \varepsilon$ | 2-layer neural network |
 | DT | $y = \text{DecisionTree}(x) + \varepsilon$ | Random decision tree |
 
+### Detailed Experiment Mapping
+
+#### Results I: Architecture Scaling (`S13-S24`)
+
+Fixed task: NLR with $\sigma = 0.1$. Varies architecture width, depth, and GPT-2 presets.
+
+| Group | Experiments | Config files |
+|-------|------------|--------------|
+| Width scaling | S13-S16 | [`S13_gpt2_w32_d6_nlr80x40.yaml`](train_icl/conf/gpt/S13_gpt2_w32_d6_nlr80x40.yaml) ... [`S16_gpt2_w256_d6_nlr80x40.yaml`](train_icl/conf/gpt/S16_gpt2_w256_d6_nlr80x40.yaml) |
+| Depth scaling | S17-S20 | [`S17_gpt2_w64_d2_nlr80x40.yaml`](train_icl/conf/gpt/S17_gpt2_w64_d2_nlr80x40.yaml) ... [`S20_gpt2_w64_d12_nlr80x40.yaml`](train_icl/conf/gpt/S20_gpt2_w64_d12_nlr80x40.yaml) |
+| GPT-2 presets | S21-S24 | [`S21_gpt2_tiny_nlr80x40.yaml`](train_icl/conf/gpt/S21_gpt2_tiny_nlr80x40.yaml) ... [`S24_gpt2_large_nlr80x40.yaml`](train_icl/conf/gpt/S24_gpt2_large_nlr80x40.yaml) |
+
+**Eval scripts**: [`eval_icl_lr2x_ci.py`](train_icl/eval_icl_lr2x_ci.py) (RMSE), [`eval_icl_lr2x_speedcp.py`](train_icl/eval_icl_lr2x_speedcp.py) (SpeedCP)
+
+#### Results II: Task Complexity & SNR (`S52-S67`)
+
+Fixed architecture: w256 d12. Varies 4 task families x 4 noise levels ($\sigma \in \{0.1, 0.25, 0.5, 1.0\}$).
+
+| Task | Experiments | Example config |
+|------|------------|----------------|
+| NLR | S52-S55 | [`S52_gpt2_w256_d12_nlr80x40_noise01.yaml`](train_icl/conf/gpt/S52_gpt2_w256_d12_nlr80x40_noise01.yaml) |
+| NQR | S56-S59 | [`S56_gpt2_w256_d12_nqr200x40_noise01.yaml`](train_icl/conf/gpt/S56_gpt2_w256_d12_nqr200x40_noise01.yaml) |
+| 2NN | S60-S63 | [`S60_gpt2_w256_d12_n2nn200x40_noise01.yaml`](train_icl/conf/gpt/S60_gpt2_w256_d12_n2nn200x40_noise01.yaml) |
+| DT | S64-S67 | [`S64_gpt2_w256_d12_ndt200x40_noise01.yaml`](train_icl/conf/gpt/S64_gpt2_w256_d12_ndt200x40_noise01.yaml) |
+
+Noise injection: [`tasks.py`](train_icl/tasks.py) classes `NoisyLinearRegression`, `NoisyQuadraticRegression`, `NoisyRelu2nnRegression`, `NoisyDecisionTree`.
+
+**SNR note**: All tasks normalize signal variance to $\approx 1$ via `normalize_w=True`, so $\text{SNR} \approx 1/\sigma^2$. At $\sigma = 0.1$, SNR $\approx 100$ (20 dB), constant across dimensions.
+
+#### Results III: Input Dimensionality (`S69-S84`)
+
+Fixed architecture: w512 d12. Varies $d \in \{10, 20, 40, 100\}$ across 4 task families.
+
+| Task | Experiments | Example config |
+|------|------------|----------------|
+| NLR | S69, S73-S75 | [`S69_gpt2_w512_d12_nlr201x100.yaml`](train_icl/conf/gpt/S69_gpt2_w512_d12_nlr201x100.yaml) |
+| NQR | S70, S76-S78 | [`S70_gpt2_w512_d12_nqr501x100.yaml`](train_icl/conf/gpt/S70_gpt2_w512_d12_nqr501x100.yaml) |
+| 2NN | S71, S79-S81 | [`S71_gpt2_w512_d12_n2nn501x100.yaml`](train_icl/conf/gpt/S71_gpt2_w512_d12_n2nn501x100.yaml) |
+| DT | S72, S82-S84 | [`S72_gpt2_w512_d12_ndt501x100.yaml`](train_icl/conf/gpt/S72_gpt2_w512_d12_ndt501x100.yaml) |
+
+### Core Code Mapping
+
+| Thesis component | Code |
+|-----------------|------|
+| Training | [`train_icl/train.py`](train_icl/train.py) |
+| Task definitions | [`train_icl/tasks.py`](train_icl/tasks.py) |
+| Dimension/context curriculum | [`train_icl/curriculum.py`](train_icl/curriculum.py) |
+| GPT-2 architectures | [`train_icl/models.py`](train_icl/models.py) |
+| SpeedCP conformal | [`train_icl/uq/speedcp_conformal.py`](train_icl/uq/speedcp_conformal.py) |
+| CondConf conformal | [`train_icl/uq/conditional_conformal.py`](train_icl/uq/conditional_conformal.py) |
+| All experiment configs | [`train_icl/conf/gpt/`](train_icl/conf/gpt) |
+
 ---
 
 ## `pretrain_icl/`
